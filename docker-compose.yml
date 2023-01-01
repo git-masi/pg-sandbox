@@ -1,0 +1,34 @@
+name: pg-sandbox
+
+services:
+  sandbox-db:
+    container_name: sandbox-db
+    image: postgres:15-alpine
+    restart: "on-failure"
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      # anything in initdb directory is created in the database
+      # see "How to extend this image" section at https://hub.docker.com/r/_/postgres/
+      # - "./initdb:/docker-entrypoint-initdb.d"
+      - "sandbox_db_data:/var/lib/postgresql/data"
+
+  # Run a PGAdmin container to interact with the postgres DB in the browser
+  pgadmin:
+    container_name: sandbox-pgadmin
+    image: dpage/pgadmin4
+    restart: "on-failure"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=root@root.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+      - PGADMIN_LISTEN_PORT=5050
+    ports:
+      - '5050:5050'
+
+volumes:
+  sandbox_db_data:
+    driver: local
